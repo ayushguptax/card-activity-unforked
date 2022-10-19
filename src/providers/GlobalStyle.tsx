@@ -56,6 +56,6 @@ export const GlobalStyle = createGlobalStyle`
     background: linear-gradient(180deg, ${colors.black['900']} 1.77%, ${colors.black['600']} 100%);
     font-family: "Kanit-Light";
     font-size: 16px;
-    color: ${colors.gray['500']};
+    color: ${colors.gray['300']};
   }
 `;

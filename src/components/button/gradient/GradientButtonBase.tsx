@@ -1,16 +1,17 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../../constants/colors';
+import { Size } from './GradientButton';
 
 interface Props {
-    isSmall: boolean;
+    size: Size;
     disabled: boolean;
     children: ReactNode;
     onClick?: () => void;
 }
 
 export const GradientButtonBase = ({
-    isSmall,
+    size,
     disabled,
     children,
     onClick,
@@ -18,7 +19,11 @@ export const GradientButtonBase = ({
     <button disabled={disabled} onClick={onClick} className="cursor-pointer">
         <GradientBackground
             className={`${
-                isSmall ? 'w-[14rem] h-[3rem] px-4' : 'w-[17rem] h-[4rem] px-6'
+                size === 'small'
+                    ? 'w-[12rem] h-[3rem] px-2'
+                    : size === 'medium'
+                    ? 'w-[14rem] h-[3rem] px-4'
+                    : 'w-[17rem] h-[4rem] px-6'
             } flex justify-center items-center rounded-[32px]`}
         >
             {children}

@@ -117,7 +117,7 @@ export const Stats = () => {
             <div className="w-full flex flex-col items-center justify-center px-4">
                 <div className="mb-6">
                     <GradientButtonWithIcon
-                        isSmall={true}
+                        size="medium"
                         disabled={false}
                         text="ADD TO METAMASK"
                         onClick={addToMetamask}

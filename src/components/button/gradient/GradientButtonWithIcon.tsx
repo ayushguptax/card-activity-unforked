@@ -1,8 +1,9 @@
 import { ReactNode } from 'react';
+import { Size } from './GradientButton';
 import { GradientButtonBase } from './GradientButtonBase';
 
 interface Props {
-    isSmall: boolean;
+    size: Size;
     disabled: boolean;
     text: string;
     children: ReactNode;
@@ -10,18 +11,22 @@ interface Props {
 }
 
 export const GradientButtonWithIcon = ({
-    isSmall,
+    size,
     disabled,
     text,
     children,
     onClick,
 }: Props) => (
-    <GradientButtonBase isSmall={isSmall} disabled={disabled} onClick={onClick}>
+    <GradientButtonBase size={size} disabled={disabled} onClick={onClick}>
         <div className="w-full flex justify-between">
             {children}
             <span
                 className={`${
-                    isSmall ? 'text-base font-medium' : 'text-xl'
+                    size === 'small'
+                        ? 'text-sm'
+                        : size === 'medium'
+                        ? 'text-base font-medium'
+                        : 'text-xl'
                 } tracking-wider`}
             >
                 {text}

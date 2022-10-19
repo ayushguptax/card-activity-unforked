@@ -1,5 +1,6 @@
 import { Page } from '../components/page/Page';
 import { Stats } from '../components/stats/Stats';
+import { VestingOverview } from '../components/vestingOverview/VestingOverview';
 
 export const Main = () => (
     <Page>
@@ -11,9 +12,8 @@ export const Main = () => (
                 </div>
             </div>
             <div className="my-28">Liquidity / Swap / Buy</div>
-            <div className="flex my-28">
-                <div className="mx-8">Your $Lake Vesting Schedule</div>
-                <div className="mx-8">Withdraw</div>
+            <div className="w-full h-[80vh] py-14">
+                <VestingOverview />
             </div>
         </div>
     </Page>

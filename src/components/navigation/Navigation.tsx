@@ -63,7 +63,7 @@ export const Navigation = () => {
                         </>
                     ) : (
                         <GradientButtonWithIcon
-                            isSmall={false}
+                            size="big"
                             disabled={false}
                             text="CONNECT WALLET"
                             onClick={activate}
