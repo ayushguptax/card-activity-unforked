@@ -21,9 +21,6 @@ export const VestingOverview = () => {
                 library,
                 account,
             );
-
-            console.log(beneficiaryOverview, 'here');
-
             const vestingSchedules = beneficiaryOverview.map(
                 (el: IBeneficiaryOverview) => formatVestingScheduleData(el),
             );
