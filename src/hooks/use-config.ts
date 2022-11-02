@@ -36,10 +36,9 @@ export const useConfig = () => {
             (Number(process.env.REACT_APP_SWAP_CONVENIENCE_FEE) > 1
                 ? 1
                 : Number(process.env.REACT_APP_SWAP_CONVENIENCE_FEE)),
-        swapConvenienceFeeRecipient: {
-            [networks[chain].chainId]:
-                process.env.REACT_APP_SWAP_CONVENIENCE_FEE_RECIPIENT || '',
-        },
+        swapConvenienceFeeRecipient:
+            process.env.REACT_APP_SWAP_CONVENIENCE_FEE_RECIPIENT || '',
+
         getDappConfig,
     };
 };

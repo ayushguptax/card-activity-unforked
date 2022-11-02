@@ -1,3 +1,5 @@
+import '@uniswap/widgets/fonts.css';
+
 import { SwapWidget, Theme } from '@uniswap/widgets';
 
 import { WalletConnectContext } from '../../../context';
@@ -33,10 +35,11 @@ export const SwapCustomWidget = () => {
                 hideConnectionUI
                 width="100%"
                 provider={library}
-                jsonRpcUrlMap={{ [chainId]: [rpcUrl] }}
                 defaultOutputTokenAddress={lakeAddress}
                 convenienceFee={swapConvenienceFee}
-                convenienceFeeRecipient={swapConvenienceFeeRecipient}
+                convenienceFeeRecipient={{
+                    [chainId]: swapConvenienceFeeRecipient,
+                }}
                 theme={theme}
                 tokenList={tokens}
             />
