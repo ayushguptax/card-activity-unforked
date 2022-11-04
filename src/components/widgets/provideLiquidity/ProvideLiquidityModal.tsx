@@ -3,6 +3,8 @@ import { useContext, useEffect, useState } from 'react';
 
 import { Button } from '../../button/Button';
 import { GradientButton } from '../../button/gradient/GradientButton';
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { REFRESH_LAKE_PRICE_INTERVAL } from '../../../constants/commons';
 import ReactModal from 'react-modal';
 import { TokenInput } from './TokenInput';
 import { WalletConnectContext } from '../../../context';
@@ -10,6 +12,7 @@ import cancelIcon from './../../../assets/icons/cancel-icon.svg';
 import { parseBigNumber } from '../../../utils/parseBigNumber';
 import { useConfig } from '../../../hooks/use-config';
 import { useTokenBalance } from '@usedapp/core';
+import { useUniswap } from '../../../hooks/use-uniswap';
 
 type Props = {
     isOpen: boolean;
@@ -35,12 +38,28 @@ const customStyles = {
 ReactModal.setAppElement('#root');
 
 export const ProvideLiquidityModal = ({ isOpen, closeModal }: Props) => {
-    const { account } = useContext(WalletConnectContext);
+    const { account, library } = useContext(WalletConnectContext);
     const { usdtAddress, lakeAddress } = useConfig();
     const [usdtBalance, setUsdtBalance] = useState(0);
     const [lakeBalance, setLakeBalance] = useState(0);
     const usdtBalanceAsBigNumber = useTokenBalance(usdtAddress, account);
     const lakeBalanceAsBigNumber = useTokenBalance(lakeAddress, account);
+    const { getLakePrice } = useUniswap();
+    const usdtPrice = 1;
+    const [lakePrice, setLakePrice] = useState(0);
+
+    useEffect(() => {
+        const fetchData = async (library: JsonRpcProvider) => {
+            setLakePrice(await getLakePrice(library));
+        };
+
+        if (library) {
+            fetchData(library).catch(console.error);
+            setInterval(() => {
+                fetchData(library).catch(console.error);
+            }, REFRESH_LAKE_PRICE_INTERVAL);
+        }
+    }, []);
 
     useEffect(() => {
         setBalances();
@@ -92,12 +111,12 @@ export const ProvideLiquidityModal = ({ isOpen, closeModal }: Props) => {
                         <TokenInput
                             tokenSymbol="USDT"
                             tokenAmount={usdtBalance}
-                            tokenPrice={1}
+                            tokenPrice={usdtPrice}
                         />
                         <TokenInput
                             tokenSymbol="LAKE"
                             tokenAmount={lakeBalance}
-                            tokenPrice={0.47}
+                            tokenPrice={lakePrice}
                         />
                     </div>
                     <div className="flex flex-col mt-8 items-center">

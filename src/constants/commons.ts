@@ -1,2 +1,4 @@
 export const SEC_PER_DAY = 86400;
 export const DEFAULT_ROUNDING = 8;
+export const REFRESH_STATS_INTERVAL = 180000;
+export const REFRESH_LAKE_PRICE_INTERVAL = 60000;
