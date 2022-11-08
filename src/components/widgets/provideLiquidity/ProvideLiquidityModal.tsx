@@ -1,8 +1,13 @@
 import { ASSET_LAKE, ASSET_USDT } from '../../../constants/assets';
+import { BigNumber, Contract } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { useTokenAllowance, useTokenBalance } from '@usedapp/core';
 
 import { Button } from '../../button/Button';
+import { ButtonWithSpinner } from '../../button/ButtonWithSpinner';
+import { ERC20Abi } from '../../../abis/ERC20';
 import { GradientButton } from '../../button/gradient/GradientButton';
+import { GradientButtonWithSpinner } from '../../button/gradient/GradientButtonWithSpinner';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { REFRESH_LAKE_PRICE_INTERVAL } from '../../../constants/commons';
 import ReactModal from 'react-modal';
@@ -11,7 +16,6 @@ import { WalletConnectContext } from '../../../context';
 import cancelIcon from './../../../assets/icons/cancel-icon.svg';
 import { parseBigNumber } from '../../../utils/parseBigNumber';
 import { useConfig } from '../../../hooks/use-config';
-import { useTokenBalance } from '@usedapp/core';
 import { useUniswap } from '../../../hooks/use-uniswap';
 
 type Props = {
@@ -39,22 +43,38 @@ ReactModal.setAppElement('#root');
 
 export const ProvideLiquidityModal = ({ isOpen, closeModal }: Props) => {
     const { account, library } = useContext(WalletConnectContext);
-    const { usdtAddress, lakeAddress } = useConfig();
+    const { usdtAddress, lakeAddress, nonfungiblePositionManagerAddress } =
+        useConfig();
     const [usdtBalance, setUsdtBalance] = useState(0);
     const [lakeBalance, setLakeBalance] = useState(0);
     const [usdtInputValue, setUsdtInputValue] = useState(0);
     const [lakeInputValue, setLakeInputValue] = useState(0);
     const [isUsdtValueValid, setIsUsdtValueValid] = useState(true);
     const [isLakeValueValid, setIsLakeValueValid] = useState(true);
+    const [isUsdtApproved, setIsUsdtApproved] = useState(false);
+    const [isLakeApproved, setIsLakeApproved] = useState(false);
+    const [isUsdtApproving, setIsUsdtApproving] = useState(false);
+    const [isLakeApproving, setIsLakeApproving] = useState(false);
+    const [isLiquidityProviding, setIsLiquidityProviding] = useState(false);
     const usdtBalanceAsBigNumber = useTokenBalance(usdtAddress, account);
     const lakeBalanceAsBigNumber = useTokenBalance(lakeAddress, account);
-    const { getLakePrice } = useUniswap();
+    const usdtAllowance = useTokenAllowance(
+        usdtAddress,
+        account,
+        nonfungiblePositionManagerAddress,
+    );
+    const lakeAllowance = useTokenAllowance(
+        lakeAddress,
+        account,
+        nonfungiblePositionManagerAddress,
+    );
     const usdtPrice = 1;
     const [lakePrice, setLakePrice] = useState(0);
 
     useEffect(() => {
         const fetchData = async (library: JsonRpcProvider) => {
-            setLakePrice(await getLakePrice(library));
+            const { getLakePrice } = useUniswap(library);
+            setLakePrice(await getLakePrice());
         };
 
         if (library) {
@@ -68,6 +88,24 @@ export const ProvideLiquidityModal = ({ isOpen, closeModal }: Props) => {
     useEffect(() => {
         setBalances();
     }, [usdtBalanceAsBigNumber, lakeBalanceAsBigNumber]);
+
+    useEffect(() => {
+        setIsUsdtApproved(
+            (!!usdtAllowance &&
+                parseBigNumber(usdtAllowance, ASSET_USDT.decimals) >=
+                    usdtInputValue) ||
+                usdtInputValue === 0,
+        );
+    }, [usdtInputValue]);
+
+    useEffect(() => {
+        setIsLakeApproved(
+            (!!lakeAllowance &&
+                parseBigNumber(lakeAllowance, ASSET_LAKE.decimals) >=
+                    lakeInputValue) ||
+                lakeInputValue === 0,
+        );
+    }, [lakeInputValue]);
 
     const setBalances = () => {
         setUsdtBalance(
@@ -98,17 +136,45 @@ export const ProvideLiquidityModal = ({ isOpen, closeModal }: Props) => {
         setIsUsdtValueValid(usdtAmount <= usdtBalance);
     };
 
-    const onApproveClick = () => {
-        console.log('approve');
+    const onApproveClick = async (tokenAddress: string, amount: number) => {
+        tokenAddress === lakeAddress
+            ? setIsLakeApproving(true)
+            : setIsUsdtApproving(true);
+
+        const tokenContract = new Contract(
+            tokenAddress,
+            ERC20Abi,
+            library?.getSigner(account),
+        );
+
+        const resp = tokenContract.approve(
+            nonfungiblePositionManagerAddress,
+            BigNumber.from(amount),
+        );
+
+        await resp.wait();
+
+        tokenAddress === lakeAddress
+            ? setIsLakeApproving(false)
+            : setIsUsdtApproving(false);
     };
-    const onProvideLiquidityClick = () => {
-        console.log('provide');
+
+    const onProvideLiquidityClick = async () => {
+        if (library && account) {
+            setIsLiquidityProviding(true);
+            const { provideLiquidity } = useUniswap(library);
+            await provideLiquidity(usdtInputValue, lakeInputValue, account);
+            setIsLiquidityProviding(false);
+            setLakeInputValue(0);
+            setUsdtInputValue(0);
+        }
     };
+
     return (
         <ReactModal
             isOpen={isOpen}
             style={customStyles}
-            contentLabel="Example Modal"
+            contentLabel="Provide Liquidity Modal"
         >
             <div className="flex flex-col">
                 <div className="flex justify-end items-center mb-6">
@@ -138,7 +204,7 @@ export const ProvideLiquidityModal = ({ isOpen, closeModal }: Props) => {
                                 onUsdtValueChange(usdtBalance)
                             }
                             onChange={(event: any) =>
-                                onUsdtValueChange(event.target.value || 0)
+                                onUsdtValueChange(event.target.value || '')
                             }
                         />
                         <TokenInput
@@ -150,25 +216,77 @@ export const ProvideLiquidityModal = ({ isOpen, closeModal }: Props) => {
                                 onLakeValueChange(lakeBalance)
                             }
                             onChange={(event: any) =>
-                                onLakeValueChange(event.target.value || 0)
+                                onLakeValueChange(event.target.value || '')
                             }
                         />
                     </div>
-                    <div className="flex flex-col mt-8 items-center">
-                        <GradientButton
-                            size="medium"
-                            disabled={false}
-                            text="APPROVE LAKE"
-                            onClick={onApproveClick}
-                        />
-                        <div className="mt-6 mb-2">
-                            <Button
-                                size="medium"
-                                disabled={false}
-                                text="PROVIDE LIQUIDITY"
-                                onClick={onProvideLiquidityClick}
-                            />
-                        </div>
+                    <div className="flex flex-col items-center">
+                        {!isUsdtApproved && (
+                            <div className="mt-8">
+                                {isUsdtApproving ? (
+                                    <GradientButtonWithSpinner
+                                        size="medium"
+                                        disabled={true}
+                                    />
+                                ) : (
+                                    <GradientButton
+                                        size="medium"
+                                        disabled={false}
+                                        text="APPROVE USDT"
+                                        onClick={() =>
+                                            onApproveClick(
+                                                usdtAddress,
+                                                usdtInputValue,
+                                            )
+                                        }
+                                    />
+                                )}
+                            </div>
+                        )}
+                        {!isLakeApproved && (
+                            <div className="mt-8">
+                                {isLakeApproving ? (
+                                    <GradientButtonWithSpinner
+                                        size="medium"
+                                        disabled={true}
+                                    />
+                                ) : (
+                                    <GradientButton
+                                        size="medium"
+                                        disabled={false}
+                                        text="APPROVE LAKE"
+                                        onClick={() =>
+                                            onApproveClick(
+                                                lakeAddress,
+                                                lakeInputValue,
+                                            )
+                                        }
+                                    />
+                                )}
+                            </div>
+                        )}
+                        {isLakeApproved && isUsdtApproved && (
+                            <div className="mt-8">
+                                {isLiquidityProviding ? (
+                                    <ButtonWithSpinner
+                                        size="medium"
+                                        disabled={true}
+                                    />
+                                ) : (
+                                    <Button
+                                        size="medium"
+                                        disabled={
+                                            lakeInputValue === 0 ||
+                                            usdtInputValue === 0 ||
+                                            !isLakeValueValid ||
+                                            !isUsdtValueValid
+                                        }
+                                        text="PROVIDE LIQUIDITY"
+                                        onClick={onProvideLiquidityClick}
+                                    />
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
