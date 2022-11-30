@@ -94,6 +94,22 @@ export const SecondStep = ({
     );
 
     useEffect(() => {
+        const fetchData = async (library: JsonRpcProvider) => {
+            if (
+                !!selectedPosition &&
+                selectedPosition.tokenAddress !== usdtAddress
+            ) {
+                setTokenPrice(await useTokenUsdtPrice(library, tokenAddress));
+            } else {
+                setTokenPrice(1);
+            }
+        };
+        if (library) {
+            fetchData(library).catch(console.error);
+        }
+    }, []);
+
+    useEffect(() => {
         setTokenBalance(
             tokenBalanceAsBigNumber
                 ? parseBigNumber(tokenBalanceAsBigNumber, tokenDecimals)
@@ -121,19 +137,9 @@ export const SecondStep = ({
     }, [pool]);
 
     useEffect(() => {
-        const fetchData = async (library: JsonRpcProvider) => {
-            setTokenPrice(
-                tokenAddress === usdtAddress
-                    ? 1
-                    : await useTokenUsdtPrice(library, tokenAddress),
-            );
-        };
         setTokenDecimals(
             ASSETS.find((el) => el.symbol === pool.token0.symbol)!.decimals,
         );
-        if (library) {
-            fetchData(library).catch(console.error);
-        }
     }, [tokenAddress]);
 
     useEffect(() => {
@@ -310,6 +316,7 @@ export const SecondStep = ({
             <div className="flex min-w-[20vw]">
                 <div className="w-full flex flex-col">
                     <TokenInput
+                        balance={tokenBalance}
                         tokenSymbol={pool!.token0.symbol}
                         tokenPrice={tokenPrice}
                         inputValue={tokenInputValue}
@@ -322,6 +329,7 @@ export const SecondStep = ({
                         }
                     />
                     <TokenInput
+                        balance={lakeBalance}
                         tokenSymbol="LAKE"
                         tokenPrice={lakePrice}
                         inputValue={lakeInputValue}

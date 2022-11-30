@@ -6,8 +6,9 @@ type DappConfig = {
     readOnlyUrls: {
         [key: number]: string;
     };
+    multicallVersion: MulticallVersion;
 };
-
+type MulticallVersion = 1 | 2 | undefined;
 type SupportedChain = 'mainnet' | 'goerli';
 
 const chain: SupportedChain =
@@ -43,6 +44,7 @@ export const useConfig = () => {
         readOnlyUrls: {
             [networks[chain].chainId]: networks[chain].rpcUrl,
         },
+        multicallVersion: 2,
     });
 
     const getPool = (token0: string, token1: string): IPool | undefined =>

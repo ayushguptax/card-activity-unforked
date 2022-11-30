@@ -16,7 +16,7 @@ import { useTokenBalance } from '@usedapp/core';
 
 export const ProvideLiquidityWidget = () => {
     const { account, library } = useContext(WalletConnectContext);
-    const { lakeAddress, usdtAddress } = useConfig();
+    const { lakeAddress } = useConfig();
     const [arePositionsLoading, setArePositionsLoading] = useState(true);
     const [positions, setPositions] = useState<IPositionDetails[]>([]);
     const [isProvideLiquidityModalOpen, setIsProvideLiquidityModalOpen] =
