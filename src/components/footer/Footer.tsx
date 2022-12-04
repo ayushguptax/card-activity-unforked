@@ -54,12 +54,19 @@ export const Footer = () => {
             </div>
             <div className="flex flex-col items-center tracking-[.1em] text-xl font-kanit-light color-gray-gradient text-shadow">
                 <span className="my-2 cursor-pointer">CONTACT US</span>
-                <Link className="my-2 cursor-pointer" to="/privacy-policy">
+                <Link
+                    className="my-2 cursor-pointer"
+                    to="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     PRIVACY POLICY
                 </Link>
                 <Link
                     className="my-2 cursor-pointer"
                     to="/terms-and-conditions"
+                    target="_blank"
+                    rel="noopener noreferrer"
                 >
                     DISCLAIMER
                 </Link>
