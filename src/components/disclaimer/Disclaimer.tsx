@@ -27,8 +27,8 @@ export const Disclaimer = ({ onAcceptClick }: Props) => {
                     <div className="w-full flex flex-col items-center justify-between">
                         <div className="w-full flex items-center justify-between">
                             <ToggleButton
-                                inactiveLabel="PL"
-                                activeLabel="ENG"
+                                inactiveLabel="🇵🇱"
+                                activeLabel="🇬🇧"
                                 value={isEnglish}
                                 onToggle={() => {
                                     setIsEnglish(!isEnglish);
