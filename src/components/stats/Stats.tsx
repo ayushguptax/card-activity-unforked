@@ -21,7 +21,7 @@ const zeroStats = {
     pastCirculationSupply: 0,
     lakePrice: 0,
     pastLakePrice: 0,
-    consentsGathered: 409,
+    consentsGathered: 0,
     pastConsentsGathered: 0,
 };
 
