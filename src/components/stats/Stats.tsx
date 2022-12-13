@@ -99,7 +99,7 @@ export const Stats = () => {
                     formattedValue={formatValue(
                         lakeStats.consentsGathered,
                         '',
-                        0,
+                        409,
                     )}
                 />
             </div>
