@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "Data Lake Token App",
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=false react-app-rewired start",
+    "start": "node ps.config.js | react-app-rewired start",
     "build": "GENERATE_SOURCEMAP=false react-app-rewired build",
     "test": "jest --setupFiles dotenv/config"
   },
@@ -21,7 +21,9 @@
     "@walletconnect/web3-provider": "^1.8.0",
     "axios": "^1.1.2",
     "ethers": "^5.5.1",
+    "fs": "^0.0.1-security",
     "next-tick": "^1.1.0",
+    "path": "^0.12.7",
     "rc-slider": "^10.1.0",
     "react": "^18.2.0",
     "react-circular-progressbar": "^2.1.0",
@@ -35,6 +37,7 @@
     "react-spinners": "^0.13.6",
     "react-toggle-button": "^2.2.0",
     "react-tooltip": "^4.5.1",
+    "request": "^2.88.2",
     "styled-components": "^5.3.1",
     "web-vitals": "^2.1.4",
     "web3modal": "^1.9.9"
