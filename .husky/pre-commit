@@ -1,0 +1,14 @@
+echo "Please wait for checking if your commit has errors or not"
+cd .husky
+node pre-commit.js &
+PID=$!
+
+while kill -0 $PID 2>/dev/null; do
+    printf "\r["
+    printf "%0.s#" $(seq 1 $count)
+    printf "%0.s " $(seq 1 $((10 - count)))
+    printf "] Checking..."
+    count=$(((count + 1) % 11))
+    sleep 0.1
+done
+wait $PID
